@@ -32,6 +32,9 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			if err := json.Unmarshal(data, &name); err != nil {
 				return nil, err
 			}
+			if name == "" {
+				return nil, ErrInvalidName
+			}
 			mu.Lock()
 			names := []byte{'['}
 			for oc := range conns {
@@ -76,4 +79,7 @@ func init() {
 	http.Handle("/socket", websocket.Handler(wsHandler))
 }
 
-var ErrNameTaken = errors.New("name taken")
+var (
+	ErrNameTaken   = errors.New("name taken")
+	ErrInvalidName = errors.New("invalid name")
+)
