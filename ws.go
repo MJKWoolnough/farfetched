@@ -46,6 +46,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 					names = strconv.AppendQuote(names, oc.Name)
 				}
 			}
+			c.Name = name
 			mu.Unlock()
 			Broadcast(c, BroadcastUserAdd, data)
 			return append(json.RawMessage(names), ']'), nil
