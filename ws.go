@@ -54,6 +54,33 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			Broadcast(c, BroadcastUserAdd, data)
 			return append(json.RawMessage(names), ']'), nil
 		}
+	} else {
+		switch method {
+		case "connect":
+			var nameSDP struct {
+				Name string          `json:"name"`
+				SDP  json.RawMessage `json:"sdp"`
+			}
+			if err := json.Unmarshal(data, &nameSDP); err != nil {
+				return nil, err
+			}
+			if nameSDP.Name == "" {
+				return nil, ErrInvalidName
+			}
+			mu.RLock()
+			for oc := range conns {
+				if oc.Name == nameSDP.Name {
+					data = append(data[:0], "{\"name\":"...)
+					data = json.RawMessage(strconv.AppendQuote(data, name))
+					data = append(data, ",\"sdp\":"...)
+					data = append(data, nameSDP.SDP...)
+					data = append(data, '}')
+					oc.rpc.SendData(buildBroadcast(BroadcastSDP, data))
+					break
+				}
+			}
+			mu.RUnlock()
+		}
 	}
 	return nil, nil
 }
@@ -80,6 +107,7 @@ func init() {
 }
 
 var (
-	ErrNameTaken   = errors.New("name taken")
-	ErrInvalidName = errors.New("invalid name")
+	ErrNameTaken    = errors.New("name taken")
+	ErrInvalidName  = errors.New("invalid name")
+	ErrNameNotFound = errors.New("name not found")
 )
