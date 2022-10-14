@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"sync"
 
 	"golang.org/x/net/websocket"
@@ -32,6 +33,9 @@ func wsHandler(wconn *websocket.Conn) {
 		rpc: jsonrpc.New(wconn, &c),
 	}
 	c.rpc.Handle()
+	if c.Name != "" {
+		Broadcast(&c, BroadcastUserRemove, json.RawMessage(strconv.Quote(c.Name)))
+	}
 	mu.Lock()
 	delete(conns, &c)
 	mu.Unlock()
