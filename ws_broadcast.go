@@ -7,6 +7,7 @@ import (
 const (
 	BroadcastUserAdd = -1 - iota
 	BroadcastUserRemove
+	BroadcastSDP
 )
 
 const broadcastStart = "{\"id\": -0,\"result\":"
