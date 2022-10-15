@@ -21,7 +21,7 @@ func run() error {
 	flag.Parse()
 	l, err := Listen("tcp", fmt.Sprintf(":%d", *p))
 	if err != nil {
-		return errors.New("unable to open port 80")
+		return fmt.Errorf("unable to open port %d: %w", *p, err)
 	}
 	server := &http.Server{
 		Handler: http.DefaultServeMux,
