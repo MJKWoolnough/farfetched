@@ -11,16 +11,19 @@ inited.then(rpc => {
 			type nameNode = {
 				[node]: HTMLLIElement;
 			}
-			const nameList = new NodeMap<string, nameNode>(ul());
+			const nameList = new NodeMap<string, nameNode>(ul()),
+			      addName = (name: string) => nameList.set(name, {
+				[node]: li(name)
+			      });
 			for (const name of list) {
-				nameList.set(name, {
-					[node]: li(name)
-				});
+				addName(name);
 			}
 			clearNode(document.body, [
 				h1(name.value),
 				nameList[node]
 			]);
+			rpc.waitUserAdd().then(addName);
+			rpc.waitUserRemove().then(name => nameList.delete(name));
 		})}, "Connect")
 	]);
 });
