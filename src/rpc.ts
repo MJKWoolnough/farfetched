@@ -14,8 +14,8 @@ export const rpc = {} as {
 	waitUserAdd: () => Subscription<string>;
 	waitUserRemove: () => Subscription<string>;
 	waitSDP: () => Subscription<sdpRequest>;
-	init: () => void;
-	connect: () => void;
+	init: (name: string) => Promise<string[]>;
+	connect: (r: sdpRequest) => void;
 },
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws);
