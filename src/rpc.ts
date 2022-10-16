@@ -4,7 +4,7 @@ import pageLoad from './lib/load.js';
 import {RPC} from './lib/rpc.js';
 
 type sdpRequest = {
-	user: string;
+	name: string;
 	sdp: string;
 }
 
