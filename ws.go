@@ -38,7 +38,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			mu.Lock()
 			names := []byte{'['}
 			for oc := range conns {
-				if oc != c && c.Name != "" {
+				if oc != c && oc.Name != "" {
 					if oc.Name == name {
 						mu.Unlock()
 						return nil, ErrNameTaken
