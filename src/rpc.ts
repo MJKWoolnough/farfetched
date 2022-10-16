@@ -20,11 +20,11 @@ export const rpc = {} as {
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws);
 	Object.assign(rpc, {
-		"waitUserAdd": arpc.subscribe.bind(BroadcastUserAdd),
-		"waitUserRemove": arpc.subscribe.bind(BroadcastUserRemove),
-		"waitSDP": arpc.subscribe.bind(BroadcastSDP),
-		"init": arpc.request.bind("init"),
-		"connect": arpc.request("connect"),
+		"waitUserAdd": arpc.subscribe.bind(arpc, BroadcastUserAdd),
+		"waitUserRemove": arpc.subscribe.bind(arpc, BroadcastUserRemove),
+		"waitSDP": arpc.subscribe.bind(arpc, BroadcastSDP),
+		"init": arpc.request.bind(arpc, "init"),
+		"connect": arpc.request.bind(arpc, "connect"),
 	});
 	return rpc;
 }));
