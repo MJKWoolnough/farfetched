@@ -154,7 +154,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			return nil, nil
 		}
 	}
-	return nil, nil
+	return nil, ErrUnknownEndpoint
 }
 
 func wsHandler(wconn *websocket.Conn) {
@@ -186,4 +186,5 @@ var (
 	ErrNameNotFound     = errors.New("name not found")
 	ErrAlreadyRequested = errors.New("already requested")
 	ErrNoRequest        = errors.New("no request")
+	ErrUnknownEndpoint  = errors.New("unknown endpoint")
 )
