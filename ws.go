@@ -107,6 +107,31 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			data = strconv.AppendQuote(data[:0], c.Name)
 			oc.rpc.SendData(buildBroadcast(BroadcastCancel, data))
 			return nil, nil
+		case "accept":
+			var nameSDP nameSDP
+			if err := json.Unmarshal(data, &nameSDP); err != nil {
+				return nil, err
+			}
+			if nameSDP.Name == "" {
+				return nil, ErrInvalidName
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			oc, ok := names[name]
+			if !ok {
+				return nil, ErrNameNotFound
+			}
+			if _, ok := oc.Requests[c.Name]; ok {
+				return nil, ErrNoRequest
+			}
+			delete(oc.Requests, c.Name)
+			data = append(data[:0], "{\"name\":"...)
+			data = json.RawMessage(strconv.AppendQuote(data, name))
+			data = append(data, ",\"sdp\":"...)
+			data = append(data, nameSDP.SDP...)
+			data = append(data, '}')
+			oc.rpc.SendData(buildBroadcast(BroadcastDecline, data))
+			return nil, nil
 		}
 	}
 	return nil, nil
