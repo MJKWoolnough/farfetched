@@ -132,6 +132,26 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			data = append(data, '}')
 			oc.rpc.SendData(buildBroadcast(BroadcastDecline, data))
 			return nil, nil
+		case "decline":
+			var name string
+			if err := json.Unmarshal(data, &name); err != nil {
+				return nil, err
+			}
+			if name == "" {
+				return nil, ErrInvalidName
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			oc, ok := names[name]
+			if !ok {
+				return nil, ErrNameNotFound
+			}
+			if _, ok := oc.Requests[c.Name]; ok {
+				return nil, ErrNoRequest
+			}
+			delete(oc.Requests, c.Name)
+			oc.rpc.SendData(buildBroadcast(BroadcastDecline, data))
+			return nil, nil
 		}
 	}
 	return nil, nil
