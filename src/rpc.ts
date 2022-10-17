@@ -8,9 +8,10 @@ type sdpRequest = {
 	sdp: string;
 }
 
-const BroadcastUserAdd = -1, BroadcastUserRemove = -2, BroadcastSDP = -3, BroadcastCancel = -4, BroadcastAccept = -5, BroadcastDecline = -6;
+const BroadcastInit = -1, BroadcastUserAdd = -2, BroadcastUserRemove = -3, BroadcastSDP = -4, BroadcastCancel = -5, BroadcastAccept = -6, BroadcastDecline = -7;
 
 export const rpc = {} as {
+	waitInit: Promise<string[]>;
 	waitUserAdd: () => Subscription<string>;
 	waitUserRemove: () => Subscription<string>;
 	waitSDP: () => Subscription<sdpRequest>;
@@ -23,6 +24,7 @@ export const rpc = {} as {
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws);
 	Object.assign(rpc, {
+		"waitInit": arpc.await(BroadcastInit),
 		"waitUserAdd": arpc.subscribe.bind(arpc, BroadcastUserAdd),
 		"waitUserRemove": arpc.subscribe.bind(arpc, BroadcastUserRemove),
 		"waitSDP": arpc.subscribe.bind(arpc, BroadcastSDP),
