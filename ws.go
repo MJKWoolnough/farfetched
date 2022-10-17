@@ -86,6 +86,27 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			oc.rpc.SendData(buildBroadcast(BroadcastSDP, data))
 			c.Requests[name] = struct{}{}
 			return nil, nil
+		case "cancel":
+			var name string
+			if err := json.Unmarshal(data, &name); err != nil {
+				return nil, err
+			}
+			if name == "" {
+				return nil, ErrInvalidName
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if _, ok := c.Requests[c.Name]; ok {
+				return nil, ErrNoRequest
+			}
+			oc, ok := names[name]
+			if !ok {
+				return nil, ErrNameNotFound
+			}
+			delete(c.Requests, name)
+			data = strconv.AppendQuote(data[:0], c.Name)
+			oc.rpc.SendData(buildBroadcast(BroadcastCancel, data))
+			return nil, nil
 		}
 	}
 	return nil, nil
