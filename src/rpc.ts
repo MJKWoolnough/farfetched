@@ -15,7 +15,10 @@ export const rpc = {} as {
 	waitUserRemove: () => Subscription<string>;
 	waitSDP: () => Subscription<sdpRequest>;
 	init: (name: string) => Promise<string[]>;
-	connect: (r: sdpRequest) => void;
+	request: (r: sdpRequest) => Promise<void>;
+	cancel: (name: string) => Promise<void>;
+	accept: (r: sdpRequest) => Promise<void>;
+	decline: (name: string) => Promise<void>;
 },
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws);
@@ -23,8 +26,14 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		"waitUserAdd": arpc.subscribe.bind(arpc, BroadcastUserAdd),
 		"waitUserRemove": arpc.subscribe.bind(arpc, BroadcastUserRemove),
 		"waitSDP": arpc.subscribe.bind(arpc, BroadcastSDP),
+		"waitCancel": arpc.subscribe.bind(arpc, BroadcastCancel),
+		"waitAccept": arpc.subscribe.bind(arpc, BroadcastAccept),
+		"waitDecline": arpc.subscribe.bind(arpc, BroadcastDecline),
 		"init": arpc.request.bind(arpc, "init"),
-		"connect": arpc.request.bind(arpc, "connect"),
+		"request": arpc.request.bind(arpc, "request"),
+		"cancel": arpc.request.bind(arpc, "cancel"),
+		"accept": arpc.request.bind(arpc, "accept"),
+		"decline": arpc.request.bind(arpc, "decline"),
 	});
 	return rpc;
 }));
