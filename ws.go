@@ -14,11 +14,18 @@ import (
 var (
 	mu    sync.RWMutex
 	conns = make(map[*conn]struct{})
+	names = make(map[string]*conn)
 )
 
 type conn struct {
-	Name string
-	rpc  *jsonrpc.Server
+	Name     string
+	Requests map[string]struct{}
+	rpc      *jsonrpc.Server
+}
+
+type nameSDP struct {
+	Name string          `json:"name"`
+	SDP  json.RawMessage `json:"sdp"`
 }
 
 func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
@@ -36,50 +43,49 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 				return nil, ErrInvalidName
 			}
 			mu.Lock()
-			names := []byte{'['}
-			for oc := range conns {
-				if oc != c && oc.Name != "" {
-					if oc.Name == name {
-						mu.Unlock()
-						return nil, ErrNameTaken
-					}
-					if len(names) > 1 {
-						names = append(names, ',')
-					}
-					names = strconv.AppendQuote(names, oc.Name)
+			defer mu.Unlock()
+			if _, ok := names[name]; ok {
+				return nil, ErrNameTaken
+			}
+			nameList := []byte{'['}
+			for name := range names {
+				if len(names) > 1 {
+					nameList = append(nameList, ',')
 				}
+				nameList = strconv.AppendQuote(nameList, name)
 			}
 			c.Name = name
-			mu.Unlock()
+			names[name] = c
 			Broadcast(c, BroadcastUserAdd, data)
-			return append(json.RawMessage(names), ']'), nil
+			return append(json.RawMessage(nameList), ']'), nil
 		}
 	} else {
 		switch method {
-		case "connect":
-			var nameSDP struct {
-				Name string          `json:"name"`
-				SDP  json.RawMessage `json:"sdp"`
-			}
+		case "request":
+			var nameSDP nameSDP
 			if err := json.Unmarshal(data, &nameSDP); err != nil {
 				return nil, err
 			}
 			if nameSDP.Name == "" {
 				return nil, ErrInvalidName
 			}
-			mu.RLock()
-			for oc := range conns {
-				if oc.Name == nameSDP.Name {
-					data = append(data[:0], "{\"name\":"...)
-					data = json.RawMessage(strconv.AppendQuote(data, name))
-					data = append(data, ",\"sdp\":"...)
-					data = append(data, nameSDP.SDP...)
-					data = append(data, '}')
-					oc.rpc.SendData(buildBroadcast(BroadcastSDP, data))
-					break
-				}
+			mu.Lock()
+			defer mu.Unlock()
+			if _, ok := c.Requests[name]; ok {
+				return nil, ErrAlreadyRequested
 			}
-			mu.RUnlock()
+			oc, ok := names[nameSDP.Name]
+			if !ok {
+				return nil, ErrNameNotFound
+			}
+			data = append(data[:0], "{\"name\":"...)
+			data = json.RawMessage(strconv.AppendQuote(data, name))
+			data = append(data, ",\"sdp\":"...)
+			data = append(data, nameSDP.SDP...)
+			data = append(data, '}')
+			oc.rpc.SendData(buildBroadcast(BroadcastSDP, data))
+			c.Requests[name] = struct{}{}
+			return nil, nil
 		}
 	}
 	return nil, nil
@@ -91,13 +97,15 @@ func wsHandler(wconn *websocket.Conn) {
 	conns[&c] = struct{}{}
 	mu.Unlock()
 	c = conn{
-		rpc: jsonrpc.New(wconn, &c),
+		Requests: make(map[string]struct{}),
+		rpc:      jsonrpc.New(wconn, &c),
 	}
 	c.rpc.Handle()
+	mu.Lock()
 	if c.Name != "" {
+		delete(names, c.Name)
 		Broadcast(&c, BroadcastUserRemove, json.RawMessage(strconv.Quote(c.Name)))
 	}
-	mu.Lock()
 	delete(conns, &c)
 	mu.Unlock()
 }
@@ -107,7 +115,9 @@ func init() {
 }
 
 var (
-	ErrNameTaken    = errors.New("name taken")
-	ErrInvalidName  = errors.New("invalid name")
-	ErrNameNotFound = errors.New("name not found")
+	ErrNameTaken        = errors.New("name taken")
+	ErrInvalidName      = errors.New("invalid name")
+	ErrNameNotFound     = errors.New("name not found")
+	ErrAlreadyRequested = errors.New("already requested")
+	ErrNoRequest        = errors.New("no request")
 )
