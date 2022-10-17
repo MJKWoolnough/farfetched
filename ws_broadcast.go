@@ -8,6 +8,9 @@ const (
 	BroadcastUserAdd = -1 - iota
 	BroadcastUserRemove
 	BroadcastSDP
+	BroadcastCancel
+	BroadcastAccept
+	BroadcastDecline
 )
 
 const broadcastStart = "{\"id\": -0,\"result\":"
