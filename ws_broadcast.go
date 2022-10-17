@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	BroadcastUserAdd = -1 - iota
+	BroadcastUserList = -1 - iota
+	BroadcastUserAdd
 	BroadcastUserRemove
 	BroadcastSDP
 	BroadcastCancel
