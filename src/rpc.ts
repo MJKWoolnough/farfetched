@@ -8,7 +8,7 @@ type sdpRequest = {
 	sdp: string;
 }
 
-const BroadcastUserAdd = -1, BroadcastUserRemove = -2, BroadcastSDP = -3;
+const BroadcastUserAdd = -1, BroadcastUserRemove = -2, BroadcastSDP = -3, BroadcastCancel = -4, BroadcastAccept = -5, BroadcastDecline = -6;
 
 export const rpc = {} as {
 	waitUserAdd: () => Subscription<string>;
