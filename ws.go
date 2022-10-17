@@ -15,7 +15,7 @@ var (
 	mu    sync.RWMutex
 	conns = make(map[*conn]struct{})
 	names = make(map[string]*conn)
-	users = json.RawMessage{'[', ']'}
+	users = json.RawMessage{'{', '"', 'i', 'd', '"', ':', '-', '1', ',', '"', 'r', 'e', 's', 'u', 'l', 't', '"', ':', '[', ']', '}'}
 )
 
 type conn struct {
@@ -48,16 +48,16 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			if _, ok := names[name]; ok {
 				return nil, ErrNameTaken
 			}
-			users = users[:len(users)-1]
-			if len(users) > 1 {
+			users = users[:len(users)-2]
+			if len(users) > 20 {
 				users = append(users, ',')
 			}
 			c.Name = name
 			names[name] = c
 			Broadcast(c, BroadcastUserAdd, data)
 			users = append(users, data...)
-			users = append(users, ',')
-			return users, nil
+			users = append(users, ']', '}')
+			return nil, nil
 		}
 	} else {
 		switch method {
@@ -166,19 +166,20 @@ func wsHandler(wconn *websocket.Conn) {
 		Requests: make(map[string]struct{}),
 		rpc:      jsonrpc.New(wconn, &c),
 	}
+	c.rpc.SendData(users)
 	c.rpc.Handle()
 	mu.Lock()
 	if c.Name != "" {
 		delete(names, c.Name)
 		Broadcast(&c, BroadcastUserRemove, json.RawMessage(strconv.Quote(c.Name)))
-		users = users[:1]
+		users = users[:19]
 		for name := range names {
-			if len(names) > 1 {
+			if len(names) > 20 {
 				users = append(users, ',')
 			}
 			users = strconv.AppendQuote(users, name)
 		}
-		users = append(users, ']')
+		users = append(users, ']', '}')
 	}
 	delete(conns, &c)
 	mu.Unlock()
