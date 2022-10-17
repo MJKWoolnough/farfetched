@@ -15,6 +15,7 @@ var (
 	mu    sync.RWMutex
 	conns = make(map[*conn]struct{})
 	names = make(map[string]*conn)
+	users = json.RawMessage{'[', ']'}
 )
 
 type conn struct {
@@ -47,17 +48,16 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			if _, ok := names[name]; ok {
 				return nil, ErrNameTaken
 			}
-			nameList := []byte{'['}
-			for name := range names {
-				if len(names) > 1 {
-					nameList = append(nameList, ',')
-				}
-				nameList = strconv.AppendQuote(nameList, name)
+			users = users[:len(users)-1]
+			if len(users) > 1 {
+				users = append(users, ',')
 			}
 			c.Name = name
 			names[name] = c
 			Broadcast(c, BroadcastUserAdd, data)
-			return append(json.RawMessage(nameList), ']'), nil
+			users = append(users, data...)
+			users = append(users, ',')
+			return users, nil
 		}
 	} else {
 		switch method {
@@ -171,6 +171,14 @@ func wsHandler(wconn *websocket.Conn) {
 	if c.Name != "" {
 		delete(names, c.Name)
 		Broadcast(&c, BroadcastUserRemove, json.RawMessage(strconv.Quote(c.Name)))
+		users = users[:1]
+		for name := range names {
+			if len(names) > 1 {
+				users = append(users, ',')
+			}
+			users = strconv.AppendQuote(users, name)
+		}
+		users = append(users, ']')
 	}
 	delete(conns, &c)
 	mu.Unlock()
