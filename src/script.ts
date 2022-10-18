@@ -47,7 +47,7 @@ inited.then(userList => {
 		}}, "Connect"),
 		error
 	      ]),
-	      s = shell(desktop([
+	      s = shell({"snap": 50}, desktop([
 		fs,
 		users[node]
 	      ]));
