@@ -5,6 +5,8 @@ import {inited, rpc} from './rpc.js';
 
 type userNode = {
 	[node]: HTMLLIElement;
+	acceptFn?: (sdp: string) => void;
+	cancelFn?: () => void;
 }
 
 inited.then(userList => {
@@ -12,7 +14,7 @@ inited.then(userList => {
 	const users = new NodeMap<string, userNode>(ul()),
 	      name = input(),
 	      addName = (name: string) => users.set(name, {
-		[node]: li({"onclick": () => { // local
+		[node]: li({"onclick": () => {
 			if (!connected) {
 				return;
 			}
@@ -42,4 +44,6 @@ inited.then(userList => {
 	]);
 	rpc.waitUserAdd().then(addName);
 	rpc.waitUserRemove().then(name => users.delete(name));
+	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.acceptFn?.(nameSDP.sdp));
+	rpc.waitDecline().then(name => users.get(name)?.cancelFn?.());
 });
