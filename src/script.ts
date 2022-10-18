@@ -55,7 +55,14 @@ inited.then(userList => {
 	}
 	clearNode(document.body, s);
 	rpc.waitUserAdd().then(addName);
-	rpc.waitUserRemove().then(name => users.delete(name));
+	rpc.waitUserRemove().then(name => {
+		const user = users.get(name);
+		if (user) {
+			user.cancelFn?.();
+			user.window?.remove();
+			users.delete(name);
+		}
+	});
 	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.acceptFn?.(nameSDP.sdp));
 	rpc.waitDecline().then(name => users.get(name)?.cancelFn?.());
 });
