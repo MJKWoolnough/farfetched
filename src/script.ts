@@ -1,4 +1,5 @@
 import type {WindowElement} from './lib/windows.js';
+import {add, render} from './lib/css.js';
 import {clearNode} from './lib/dom.js';
 import {button, fieldset, h1, input, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
@@ -53,7 +54,6 @@ inited.then(userList => {
 	for (const user of userList) {
 		addName(user);
 	}
-	clearNode(document.body, s);
 	rpc.waitUserAdd().then(addName);
 	rpc.waitUserRemove().then(name => {
 		const user = users.get(name);
@@ -65,4 +65,10 @@ inited.then(userList => {
 	});
 	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.acceptFn?.(nameSDP.sdp));
 	rpc.waitDecline().then(name => users.get(name)?.cancelFn?.());
+
+	add("body", {
+		"margin": 0
+	});
+	document.head.append(render());
+	clearNode(document.body, s);
 });
