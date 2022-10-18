@@ -32,7 +32,6 @@ func buildBroadcast(id int, data json.RawMessage) []byte {
 }
 
 func Broadcast(mc *conn, id int, data json.RawMessage) {
-	mu.RLock()
 	var dat json.RawMessage
 	for c := range conns {
 		if c != mc {
@@ -42,5 +41,4 @@ func Broadcast(mc *conn, id int, data json.RawMessage) {
 			go c.rpc.SendData(dat)
 		}
 	}
-	mu.RUnlock()
 }
