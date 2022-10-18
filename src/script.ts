@@ -2,6 +2,7 @@ import {clearNode} from './lib/dom.js';
 import {button, fieldset, h1, input, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
+import {desktop, shell} from './lib/windows.js';
 
 type userNode = {
 	[node]: HTMLLIElement;
@@ -18,6 +19,7 @@ inited.then(userList => {
 			if (!connected) {
 				return;
 			}
+
 		}}, name)
 	      }),
 	      error = span(),
@@ -34,14 +36,15 @@ inited.then(userList => {
 			.catch(e => clearNode(error, e + ""));
 		}}, "Connect"),
 		error
-	      ]);
+	      ]),
+	      s = shell(desktop([
+		fs,
+		users[node]
+	      ]));
 	for (const user of userList) {
 		addName(user);
 	}
-	clearNode(document.body, [
-		fs,
-		users[node]
-	]);
+	clearNode(document.body, s);
 	rpc.waitUserAdd().then(addName);
 	rpc.waitUserRemove().then(name => users.delete(name));
 	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.acceptFn?.(nameSDP.sdp));
