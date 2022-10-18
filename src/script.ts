@@ -1,27 +1,36 @@
+import type {WindowElement} from './lib/windows.js';
 import {clearNode} from './lib/dom.js';
 import {button, fieldset, h1, input, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
-import {desktop, shell} from './lib/windows.js';
+import {desktop, shell, windows} from './lib/windows.js';
 
 type userNode = {
 	[node]: HTMLLIElement;
 	acceptFn?: (sdp: string) => void;
 	cancelFn?: () => void;
+	window?: WindowElement;
 }
 
 inited.then(userList => {
 	let connected = false;
 	const users = new NodeMap<string, userNode>(ul()),
 	      name = input(),
-	      addName = (name: string) => users.set(name, {
-		[node]: li({"onclick": () => {
-			if (!connected) {
-				return;
-			}
-
-		}}, name)
-	      }),
+	      addName = (name: string) => {
+		const user: userNode = {
+			[node]: li({"onclick": () => {
+				if (!connected) {
+					return;
+				}
+				if (user.window) {
+					user.window.focus();
+					return;
+				}
+				s.addWindow(user.window = windows({"title": name, "onremove": () => user.window = undefined}, []));
+			}}, name)
+		      };
+		users.set(name, user);
+	      },
 	      error = span(),
 	      fs = fieldset([
 		legend("Enter Name"),
