@@ -2,10 +2,10 @@ import type {Children, PropsObject} from './lib/dom.js';
 import type {WindowElement} from './lib/windows.js';
 import {add, id, render} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
-import {button, fieldset, h1, input, label, legend, li, span, ul} from './lib/html.js';
+import {br, button, fieldset, h1, input, label, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
-import {StringSetting} from './lib/settings.js';
+import {BoolSetting, StringSetting} from './lib/settings.js';
 import {desktop, shell, windows} from './lib/windows.js';
 
 type arWindow = {
@@ -35,6 +35,7 @@ inited.then(userList => {
 	      }) as Labeller,
 	      users = new NodeMap<string, userNode>(ul()),
 	      nameSetting = new StringSetting("name"),
+	      autoSetting = new BoolSetting("autoconnect"),
 	      name = input({"value": nameSetting.value}),
 	      addName = (name: string) => {
 		const user: userNode = {
@@ -66,7 +67,9 @@ inited.then(userList => {
 			})
 			.catch(e => clearNode(error, e + ""));
 		}}, "Connect"),
-		error
+		error,
+		br(),
+		addLabel(input({"type": "checkbox", "checked": autoSetting.value}), "Auto-Connect: ")
 	      ]),
 	      s = shell({"snap": 50}, desktop([
 		fs,
@@ -89,6 +92,22 @@ inited.then(userList => {
 
 	add("body", {
 		"margin": 0
+	});
+	add("fieldset>input[type=checkbox]", {
+		"display": "none",
+		"+label:after": {
+			"width": "1.2em",
+			"height": "1em",
+			"display": "inline-block",
+			"content": `""`,
+			"background-repeat": "no-repeat",
+			"background-size": "1em",
+			"background-position": "bottom center",
+			"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M2,1 q5,6 8,8 M2,9 q5,-3 8,-8" stroke="%23f00" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+		},
+		":checked+label:after": {
+			"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%230f0" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+		}
 	});
 	document.head.append(render());
 	clearNode(document.body, s);
