@@ -5,6 +5,7 @@ import {amendNode, clearNode} from './lib/dom.js';
 import {button, fieldset, h1, input, label, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
+import {StringSetting} from './lib/settings.js';
 import {desktop, shell, windows} from './lib/windows.js';
 
 type arWindow = {
@@ -33,7 +34,8 @@ inited.then(userList => {
 		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
 	      }) as Labeller,
 	      users = new NodeMap<string, userNode>(ul()),
-	      name = input(),
+	      nameSetting = new StringSetting("name"),
+	      name = input({"value": nameSetting.value}),
 	      addName = (name: string) => {
 		const user: userNode = {
 			[node]: li({"onclick": () => {
@@ -56,6 +58,7 @@ inited.then(userList => {
 		name,
 		button({"onclick": () => {
 			const n = name.value;
+			nameSetting.set(n);
 			rpc.init(n)
 			.then(() => {
 				fs.replaceWith(h1(n))
