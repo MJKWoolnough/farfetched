@@ -57,6 +57,7 @@ inited.then(userList => {
 		const n = name.value;
 		if (n) {
 			amendNode(connectButton, {"disabled": true});
+			amendNode(name, {"disabled": true});
 			nameSetting.set(n);
 			rpc.init(n)
 			.then(() => {
@@ -67,7 +68,10 @@ inited.then(userList => {
 				connected = true;
 			})
 			.catch(e => clearNode(error, e + ""))
-			.finally(() => amendNode(connectButton, {"disabled": false}));
+			.finally(() => {
+				amendNode(connectButton, {"disabled": false});
+				amendNode(name, {"disabled": false});
+			});
 		}
 	      },
 	      connectButton = button({"onclick": connect}, "Connect"),
