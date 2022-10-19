@@ -1,7 +1,8 @@
+import type {Children, PropsObject} from './lib/dom.js';
 import type {WindowElement} from './lib/windows.js';
-import {add, render} from './lib/css.js';
-import {clearNode} from './lib/dom.js';
-import {button, fieldset, h1, input, legend, li, span, ul} from './lib/html.js';
+import {add, id, render} from './lib/css.js';
+import {amendNode, clearNode} from './lib/dom.js';
+import {button, fieldset, h1, input, label, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
 import {desktop, shell, windows} from './lib/windows.js';
@@ -18,9 +19,20 @@ type userNode = {
 	receive?: arWindow;
 }
 
+type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
+
+interface Labeller {
+	<T extends Input>(name: Children, input: T, props?: PropsObject): [HTMLLabelElement, T];
+	<T extends Input>(input: T, name: Children, props?: PropsObject): [T, HTMLLabelElement];
+}
+
 inited.then(userList => {
 	let connected = false;
-	const users = new NodeMap<string, userNode>(ul()),
+	const addLabel = ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
+		const iProps = {"id": props["for"] = id()};
+		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
+	      }) as Labeller,
+	      users = new NodeMap<string, userNode>(ul()),
 	      name = input(),
 	      addName = (name: string) => {
 		const user: userNode = {
