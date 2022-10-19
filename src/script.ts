@@ -60,7 +60,10 @@ inited.then(userList => {
 			nameSetting.set(n);
 			rpc.init(n)
 			.then(() => {
-				fs.replaceWith(h1(n))
+				fs.replaceWith(h1([n, button({"onclick": () => {
+					autoSetting.set(false);
+					window.location.reload();
+				}}, "X")]));
 				connected = true;
 			})
 			.catch(e => clearNode(error, e + ""))
