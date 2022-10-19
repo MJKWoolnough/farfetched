@@ -53,12 +53,9 @@ inited.then(userList => {
 		      };
 		users.set(name, user);
 	      },
-	      error = span(),
-	      fs = fieldset([
-		legend("Enter Name"),
-		name,
-		button({"onclick": () => {
-			const n = name.value;
+	      connect = () => {
+		const n = name.value;
+		if (n) {
 			nameSetting.set(n);
 			rpc.init(n)
 			.then(() => {
@@ -66,10 +63,16 @@ inited.then(userList => {
 				connected = true;
 			})
 			.catch(e => clearNode(error, e + ""));
-		}}, "Connect"),
+		}
+	      },
+	      error = span(),
+	      fs = fieldset([
+		legend("Enter Name"),
+		name,
+		button({"onclick": connect}, "Connect"),
 		error,
 		br(),
-		addLabel(input({"type": "checkbox", "checked": autoSetting.value}), "Auto-Connect: ")
+		addLabel(input({"type": "checkbox", "checked": autoSetting.value, "onchange": function(this: HTMLInputElement) {autoSetting.set(this.checked)}}), "Auto-Connect: ")
 	      ]),
 	      s = shell({"snap": 50}, desktop([
 		fs,
@@ -111,4 +114,7 @@ inited.then(userList => {
 	});
 	document.head.append(render());
 	clearNode(document.body, s);
+	if (autoSetting.value) {
+		connect();
+	}
 });
