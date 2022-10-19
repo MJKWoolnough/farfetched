@@ -6,11 +6,16 @@ import {NodeMap, node} from './lib/nodes.js';
 import {inited, rpc} from './rpc.js';
 import {desktop, shell, windows} from './lib/windows.js';
 
-type userNode = {
-	[node]: HTMLLIElement;
+type arWindow = {
 	acceptFn?: (sdp: string) => void;
 	cancelFn?: () => void;
-	window?: WindowElement;
+	window: WindowElement;
+}
+
+type userNode = {
+	[node]: HTMLLIElement;
+	send?: arWindow;
+	receive?: arWindow;
 }
 
 inited.then(userList => {
@@ -23,11 +28,12 @@ inited.then(userList => {
 				if (!connected) {
 					return;
 				}
-				if (user.window) {
-					user.window.focus();
+				if (user.send?.window) {
+					user.send.window.focus();
 					return;
 				}
-				s.addWindow(user.window = windows({"title": name, "onremove": () => user.window = undefined}, []));
+				user.send = {"window": windows({"title": name, "onremove": () => user.send = undefined}, [])}
+				s.addWindow(user.send.window);
 			}}, name)
 		      };
 		users.set(name, user);
@@ -58,13 +64,13 @@ inited.then(userList => {
 	rpc.waitUserRemove().then(name => {
 		const user = users.get(name);
 		if (user) {
-			user.cancelFn?.();
-			user.window?.remove();
+			user.send?.cancelFn?.();
+			user.send?.window?.remove();
 			users.delete(name);
 		}
 	});
-	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.acceptFn?.(nameSDP.sdp));
-	rpc.waitDecline().then(name => users.get(name)?.cancelFn?.());
+	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.send?.acceptFn?.(nameSDP.sdp));
+	rpc.waitDecline().then(name => users.get(name)?.send?.cancelFn?.());
 
 	add("body", {
 		"margin": 0
