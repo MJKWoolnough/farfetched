@@ -97,6 +97,8 @@ inited.then(userList => {
 		if (user) {
 			user.send?.cancelFn?.();
 			user.send?.window?.remove();
+			user.receive?.cancelFn?.();
+			user.receive?.window?.remove();
 			users.delete(name);
 		}
 	});
