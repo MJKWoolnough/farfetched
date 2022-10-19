@@ -56,20 +56,23 @@ inited.then(userList => {
 	      connect = () => {
 		const n = name.value;
 		if (n) {
+			amendNode(connectButton, {"disabled": true});
 			nameSetting.set(n);
 			rpc.init(n)
 			.then(() => {
 				fs.replaceWith(h1(n))
 				connected = true;
 			})
-			.catch(e => clearNode(error, e + ""));
+			.catch(e => clearNode(error, e + ""))
+			.finally(() => amendNode(connectButton, {"disabled": false}));
 		}
 	      },
+	      connectButton = button({"onclick": connect}, "Connect"),
 	      error = span(),
 	      fs = fieldset([
 		legend("Enter Name"),
 		name,
-		button({"onclick": connect}, "Connect"),
+		connectButton,
 		error,
 		br(),
 		addLabel(input({"type": "checkbox", "checked": autoSetting.value, "onchange": function(this: HTMLInputElement) {autoSetting.set(this.checked)}}), "Auto-Connect: ")
