@@ -94,8 +94,8 @@ inited.then(userList => {
 	for (const user of userList) {
 		addName(user);
 	}
-	rpc.waitUserAdd().then(addName);
-	rpc.waitUserRemove().then(name => {
+	rpc.waitUserAdd().when(addName);
+	rpc.waitUserRemove().when(name => {
 		const user = users.get(name);
 		if (user) {
 			user.send?.cancelFn?.();
@@ -105,8 +105,8 @@ inited.then(userList => {
 			users.delete(name);
 		}
 	});
-	rpc.waitAccept().then(nameSDP => users.get(nameSDP.name)?.send?.acceptFn?.(nameSDP.sdp));
-	rpc.waitDecline().then(name => users.get(name)?.send?.cancelFn?.());
+	rpc.waitAccept().when(nameSDP => users.get(nameSDP.name)?.send?.acceptFn?.(nameSDP.sdp));
+	rpc.waitDecline().when(name => users.get(name)?.send?.cancelFn?.());
 
 	add("body", {
 		"margin": 0
