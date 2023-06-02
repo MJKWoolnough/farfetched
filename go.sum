@@ -1,8 +1,10 @@
 golang.org/x/net v0.0.0-20221012135044-0b7e1fb9d458 h1:MgJ6t2zo8v0tbmLCueaCbF1RM+TtB0rs3Lv8DGtOIpY=
 golang.org/x/net v0.0.0-20221012135044-0b7e1fb9d458/go.mod h1:YDH+HFinaLZZlnHAfSS6ZXJJ9M9t4Dl22yv3iI2vPwk=
-vimagination.zapto.org/httpembed v1.0.4 h1:0dvruUjXzdwWXCv70ZS2ef4ojOLuj6W9Unnx2eSB1lo=
-vimagination.zapto.org/httpembed v1.0.4/go.mod h1:KisxwMttkPHTWI3yvzBOr5wJy6s157L+yD0xpCauDqM=
+vimagination.zapto.org/httpembed v1.1.0 h1:kSYES99iIJbykuGdqWWVqLH3wugx9MbZp7jRu3Udk3w=
+vimagination.zapto.org/httpembed v1.1.0/go.mod h1:KisxwMttkPHTWI3yvzBOr5wJy6s157L+yD0xpCauDqM=
 vimagination.zapto.org/httpencoding v1.0.0 h1:sSibnPq1pKROK4IBTNNCAKRPCijIZAaMQUBf/Mn5GA0=
 vimagination.zapto.org/httpencoding v1.0.0/go.mod h1:J2hxhPn3VjWestQQ036OYpDwwerfvIHmbtmTqpKVe0w=
 vimagination.zapto.org/jsonrpc v1.1.0 h1:n24LRTGvQcD0OCjXVUm5iC0dIGm4jkmgdesPDGS2uC0=
 vimagination.zapto.org/jsonrpc v1.1.0/go.mod h1:CEbi2Dg3ZtGWqEzqfj9HG/7XIuOxRoSBzeqVz2iLG5E=
+vimagination.zapto.org/reverseproxy v1.0.1 h1:HhBuyyuvR1jYN5mBw+fSq1t7Dm9Iv5af8tD2O0MU6Qo=
+vimagination.zapto.org/reverseproxy v1.0.1/go.mod h1:rrZ8rWoSG3Olz1xTIbt940w33gXiLE2ewNmiBl5JIPA=
