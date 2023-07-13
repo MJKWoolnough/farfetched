@@ -4,9 +4,9 @@ import {add, id, render} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, fieldset, h1, img, input, label, legend, li, span, ul} from './lib/html.js';
 import {NodeMap, node} from './lib/nodes.js';
-import {inited, rpc} from './rpc.js';
 import {BoolSetting, StringSetting} from './lib/settings.js';
 import {desktop, shell, windows} from './lib/windows.js';
+import {inited, rpc} from './rpc.js';
 
 type arWindow = {
 	acceptFn?: (sdp: string) => void;
