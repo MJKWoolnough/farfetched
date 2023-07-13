@@ -36,7 +36,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		"request": arpc.request.bind(arpc, "request"),
 		"cancel": arpc.request.bind(arpc, "cancel"),
 		"accept": arpc.request.bind(arpc, "accept"),
-		"decline": arpc.request.bind(arpc, "decline"),
+		"decline": arpc.request.bind(arpc, "decline")
 	});
 	return arpc.await<string[]>(BroadcastInit);
 }));
