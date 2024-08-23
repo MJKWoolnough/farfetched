@@ -25,6 +25,7 @@ export const rpc = {} as {
 },
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws);
+
 	Object.assign(rpc, {
 		"waitUserAdd": arpc.subscribe.bind(arpc, BroadcastUserAdd),
 		"waitUserRemove": arpc.subscribe.bind(arpc, BroadcastUserRemove),
@@ -38,5 +39,6 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		"accept": arpc.request.bind(arpc, "accept"),
 		"decline": arpc.request.bind(arpc, "decline")
 	});
+
 	return arpc.await<string[]>(BroadcastInit);
 }));

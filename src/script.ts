@@ -29,8 +29,10 @@ interface Labeller {
 
 inited.then(userList => {
 	let connected = false;
+
 	const addLabel = ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
 		const iProps = {"id": props["for"] = id()};
+
 		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
 	      }) as Labeller,
 	      users = new NodeMap<string, userNode>(ul()),
@@ -42,15 +44,17 @@ inited.then(userList => {
 			[node]: li({"onclick": () => {
 				if (!connected) {
 					return;
-				}
-				if (user.send?.window) {
+				} else if (user.send?.window) {
 					user.send.window.focus();
 					return;
 				}
+
 				user.send = {"window": windows({"title": name, "onremove": () => user.send = undefined}, [])}
+
 				s.addWindow(user.send.window);
 			}}, name)
 		      };
+
 		users.set(name, user);
 	      },
 	      connect = () => {
@@ -59,6 +63,7 @@ inited.then(userList => {
 			amendNode(connectButton, {"disabled": true});
 			amendNode(name, {"disabled": true});
 			nameSetting.set(n);
+
 			rpc.init(n)
 			.then(() => {
 				fs.replaceWith(h1([
@@ -91,9 +96,11 @@ inited.then(userList => {
 		fs,
 		users[node]
 	      ]));
+
 	for (const user of userList) {
 		addName(user);
 	}
+
 	rpc.waitUserAdd().when(addName);
 	rpc.waitUserRemove().when(name => {
 		const user = users.get(name);
@@ -133,6 +140,7 @@ inited.then(userList => {
 	});
 	document.head.append(render());
 	clearNode(document.body, s);
+
 	if (autoSetting.value) {
 		connect();
 	}
