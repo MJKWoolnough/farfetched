@@ -18,16 +18,20 @@ func main() {
 
 func run() error {
 	p := flag.Uint("p", 8080, "server port")
+
 	flag.Parse()
+
 	l, err := Listen("tcp", fmt.Sprintf(":%d", *p))
 	if err != nil {
 		return fmt.Errorf("unable to open port %d: %w", *p, err)
 	}
+
 	server := &http.Server{
 		Handler: http.DefaultServeMux,
 	}
 
 	errc := make(chan error)
+
 	go func() {
 		if err := server.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errc <- err
@@ -37,11 +41,14 @@ func run() error {
 	}()
 
 	sc := make(chan os.Signal, 1)
+
 	signal.Notify(sc, os.Interrupt)
 	<-sc
 	signal.Stop(sc)
+
 	close(sc)
 
 	server.Shutdown(context.Background())
+
 	return <-errc
 }

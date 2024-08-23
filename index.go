@@ -15,5 +15,5 @@ var (
 )
 
 func init() {
-	http.Handle("/", index)
+	http.Handle("/", http.FileServer(http.Dir("./src")))
 }
